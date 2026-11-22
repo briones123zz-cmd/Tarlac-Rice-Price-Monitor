@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14532d">
+<title>Tarlac Rice Price Monitor</title>
+<style>
+:root{--green:#14532d;--green2:#166534;--green3:#dcfce7;--bg:#f3f6f2;--card:#fff;--ink:#18231b;--muted:#66736a;--line:#e2e9e2;--amber:#fff4d6;--red:#fee2e2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(120deg,#123f25,#1c6a3c);color:#fff;padding:25px 17px 31px}
+.wrap{max-width:1080px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-size:12px;letter-spacing:1.4px;font-weight:800;opacity:.9}.pill{font-size:11px;border:1px solid #ffffff55;border-radius:30px;padding:5px 9px}
+h1{font-size:clamp(28px,5vw,43px);line-height:1.08;margin:19px 0 8px}.sub{color:#d9eadc;margin:0;max-width:650px}
+main{max-width:1080px;margin:22px auto;padding:0 15px 40px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px;box-shadow:0 4px 15px #1c38200a}
+.kicker{font-size:12px;color:var(--muted);margin-bottom:7px}.metric{font-size:23px;font-weight:800;letter-spacing:-.5px}.muted{color:var(--muted)}.small{font-size:12px;color:var(--muted)}
+.section{margin-top:16px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}h2{font-size:18px;margin:0}.tag{background:var(--amber);color:#795600;border-radius:30px;padding:6px 10px;font-size:11px;font-weight:750}
+.notice{padding:12px 13px;border-radius:11px;background:#f8faf8;border:1px solid var(--line);font-size:13px;color:#536057;margin-top:12px}
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}input,select,button{font:inherit;border:1px solid #ccd8ce;border-radius:9px;padding:10px 12px;background:#fff;color:var(--ink)}input,select{min-width:145px;flex:1}button{background:var(--green2);color:white;border:0;font-weight:700;cursor:pointer}button.light{background:#e9f2eb;color:var(--green)}button:focus,input:focus,select:focus{outline:3px solid #86efac;outline-offset:1px}
+.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:600px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line)}th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);background:#f8faf8}td{font-size:13px}.empty{text-align:center;padding:26px 10px;color:var(--muted)}
+.chart{width:100%;height:190px;display:block}.chart-note{font-size:12px;color:var(--muted)}
+.two{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}.links a{color:var(--green2);font-weight:650;text-decoration:none}.links a:hover{text-decoration:underline}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:22px 15px 35px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+@media(max-width:420px){.metric{font-size:20px}.card{padding:14px}.top{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+ <div class="top"><div class="brand">🌾 TARLAC PROVINCE • PHILIPPINES</div><span class="pill">PUBLIC PRICE DASHBOARD</span></div>
+ <h1>Tarlac Rice Price Monitor</h1>
+ <p class="sub">A simple place to check rice-price reports for Tarlac Province, with clear source dates and transparent data status.</p>
+</div></header>
+<main>
+ <div class="grid">
+  <section class="card"><div class="kicker">Latest verified report</div><div class="metric" id="latestDate">Unavailable</div><div class="small">Tarlac-specific DA entry only</div></section>
+  <section class="card"><div class="kicker">Verified price records</div><div class="metric" id="recordCount">0</div><div class="small">Currently loaded</div></section>
+  <section class="card"><div class="kicker">Monitoring schedule</div><div class="metric">Daily</div><div class="small">Checks for new reports</div></section>
+  <section class="card"><div class="kicker">Data status</div><div class="metric" style="font-size:17px" id="dataStatus">Awaiting data</div><div class="small">No live DA feed connected</div></section>
+ </div>
+
+ <section class="card section">
+  <div class="section-head"><h2>Rice prices in Tarlac</h2><span class="tag" id="statusTag">NO VERIFIED DATA</span></div>
+  <p class="muted" style="font-size:13px;margin:0">Prices are displayed only when a source record explicitly identifies Tarlac Province. National or Central Luzon figures are not substituted for local prices.</p>
+  <div class="controls">
+   <input id="search" type="search" placeholder="Search municipality or rice variety" aria-label="Search records">
+   <select id="municipality" aria-label="Filter municipality"><option value="">All municipalities</option></select>
+   <select id="variety" aria-label="Filter rice variety"><option value="">All varieties</option></select>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>Report date</th><th>Municipality</th><th>Rice variety</th><th>Price range / kg</th><th>Source</th></tr></thead><tbody id="priceRows"><tr><td class="empty" colspan="5">No verified Tarlac-specific prices have been imported yet.</td></tr></tbody></table></div>
+  <div class="notice" id="dataNotice">This dashboard currently has no live DA connection. It will not invent or estimate local prices. See the official sources below.</div>
+ </section>
+
+ <div class="two section">
+  <section class="card">
+   <div class="section-head"><h2>Price history</h2><span class="small">Verified records only</span></div>
+   <svg class="chart" id="historyChart" viewBox="0 0 620 190" role="img" aria-label="Price history chart showing no data yet">
+    <text x="310" y="95" text-anchor="middle" fill="#66736a" font-size="14">No historical price data yet</text>
+   </svg>
+   <div class="chart-note">The chart will appear after dated Tarlac records are added.</div>
+  </section>
+  <section class="card links">
+   <h2>Official information sources</h2>
+   <p class="muted" style="font-size:13px">Use the original report to confirm location, variety, units and publication date.</p>
+   <p><a href="https://www.da.gov.ph/price-monitoring/" target="_blank" rel="noopener">Department of Agriculture – Price Monitoring ↗</a></p>
+   <p><a href="https://rfo3.da.gov.ph/" target="_blank" rel="noopener">DA Regional Field Office III – Central Luzon ↗</a></p>
+   <div class="notice">A report may contain national or regional data without a Tarlac breakdown. Such data must not be presented as Tarlac prices.</div>
+  </section>
+ </div>
+
+ <section class="card section">
+  <div class="section-head"><h2>Administrator: import verified records</h2><span class="small">Local preview tool</span></div>
+  <p class="muted" style="font-size:13px;margin-top:0">For this starter deployment, upload a CSV you prepared from an official DA report. Records stay in this browser only; they are not shared with other visitors yet.</p>
+  <div class="notice"><b>Required CSV columns:</b> date, province, municipality, variety, min_price, max_price, source_url<br><span class="small">Only rows with province set to Tarlac will be displayed. Keep the source URL and check every entry against the original report.</span></div>
+  <div class="controls"><input type="file" id="csvFile" accept=".csv,text/csv" aria-label="Select CSV file"><button id="importBtn">Import CSV</button><button class="light" id="clearBtn">Clear local records</button></div>
+  <div class="small" id="adminMessage" aria-live="polite">No file imported.</div>
+ </section>
+ <p class="small" style="margin:16px 2px">Last checked by this page: <span id="checkedAt">Not checked</span>. Opening this page does not itself fetch new DA data.</p>
+</main>
+<footer>Independent information project • Not an official Department of Agriculture website • Verify all prices with the original DA publication.</footer>
+<script>
+const STORAGE='tarlac-rice-monitor-v2';
+let records=[];
+const el=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeLink=s=>{try{let u=new URL(s);return u.protocol==='https:'?u.href:'#'}catch{return '#'}};
+const peso=n=>Number.isFinite(Number(n))?'₱'+Number(n).toFixed(2):'—';
+function filtered(){
+ const q=el('search').value.trim().toLowerCase(),m=el('municipality').value,v=el('variety').value;
+ return records.filter(r=>r.province.toLowerCase()==='tarlac'&&(!m||r.municipality===m)&&(!v||r.variety===v)&&[r.municipality,r.variety].join(' ').toLowerCase().includes(q));
+}
+function populate(select,values,label){
+ const old=select.value;select.innerHTML=`<option value="">All ${label}</option>`+values.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+ if(values.includes(old))select.value=old;
+}
+function drawChart(data){
+ const svg=el('historyChart');
+ const points=data.filter(r=>Number.isFinite(+r.min_price)&&Number.isFinite(+r.max_price)).map(r=>({date:r.date,val:(+r.min_price + +r.max_price)/2})).sort((a,b)=>a.date.localeCompare(b.date));
+ if(!points.length){svg.innerHTML='<text x="310" y="95" text-anchor="middle" fill="#66736a" font-size="14">No historical price data yet</text>';return}
+ const min=Math.min(...points.map(p=>p.val)),max=Math.max(...points.map(p=>p.val)),span=max-min||1;
+ const xy=points.map((p,i)=>[35+i*(550/Math.max(1,points.length-1)),155-(p.val-min)/span*115]);
+ const path=xy.map((p,i)=>(i?'L':'M')+p[0]+','+p[1]).join(' ');
+ svg.innerHTML=`<line x1="35" y1="155" x2="585" y2="155" stroke="#d9e2da"/><path d="${path}" fill="none" stroke="#16803d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`+xy.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#16803d"/>`).join('')+`<text x="35" y="178" fill="#66736a" font-size="10">${esc(points[0].date)}</text><text x="585" y="178" text-anchor="end" fill="#66736a" font-size="10">${esc(points.at(-1).date)}</text><text x="35" y="18" fill="#66736a" font-size="11">${peso(min)} – ${peso(max)} midpoint/kg</text>`;
+}
+function render(){
+ const local=records.filter(r=>r.province.toLowerCase()==='tarlac');
+ const dates=local.map(r=>r.date).filter(Boolean).sort();
+ el('latestDate').textContent=dates.at(-1)||'Unavailable';
+ el('recordCount').textContent=local.length;
+ el('dataStatus').textContent=local.length?'Records loaded':'Awaiting data';
+ el('statusTag').textContent=local.length?'VERIFIED RECORDS LOADED':'NO VERIFIED DATA';
+ populate(el('municipality'),[...new Set(local.map(r=>r.municipality).filter(Boolean))].sort(),'municipalities');
+ populate(el('variety'),[...new Set(local.map(r=>r.variety).filter(Boolean))].sort(),'varieties');
+ const rows=filtered();
+ el('priceRows').innerHTML=rows.length?rows.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.municipality)}</td><td>${esc(r.variety)}</td><td>${peso(r.min_price)} – ${peso(r.max_price)}</td><td>${r.source_url?`<a href="${safeLink(r.source_url)}" target="_blank" rel="noopener">DA report ↗</a>`:'Not supplied'}</td></tr>`).join(''):'<tr><td class="empty" colspan="5">No matching Tarlac-specific records. No prices are being guessed.</td></tr>';
+ el('dataNotice').textContent=local.length?'Showing imported records marked Tarlac. Confirm each entry against its linked original DA report.':'No verified Tarlac-specific prices have been imported. This is not evidence that prices are zero or that no report exists.';
+ drawChart(local);
+}
+function parseCSV(text){
+ const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());
+ const parse=line=>{let a=[],s='',q=false;for(let i=0;i<line.length;i++){let c=line[i];if(c==='"'&&line[i+1]==='"'&&q){s+='"';i++}else if(c==='"')q=!q;else if(c===','&&!q){a.push(s.trim());s=''}else s+=c}a.push(s.trim());return a};
+ if(lines.length<2)throw Error('The CSV needs a header and at least one row.');
+ const heads=parse(lines[0]).map(x=>x.toLowerCase());
+ const required=['date','province','municipality','variety','min_price','max_price','source_url'];
+ const missing=required.filter(x=>!heads.includes(x));if(missing.length)throw Error('Missing columns: '+missing.join(', '));
+ return lines.slice(1).map(line=>{let vals=parse(line),o={};heads.forEach((h,i)=>o[h]=vals[i]??'');return o}).filter(r=>r.province.trim().toLowerCase()==='tarlac');
+}
+el('importBtn').addEventListener('click',async()=>{
+ const f=el('csvFile').files[0];if(!f){el('adminMessage').textContent='Please select a CSV file first.';return}
+ try{records=parseCSV(await f.text());localStorage.setItem(STORAGE,JSON.stringify(records));render();el('adminMessage').textContent=`Imported ${records.length} Tarlac row(s) into this browser. Verify all rows against their sources.`}
+ catch(e){el('adminMessage').textContent='Import failed: '+e.message}
+});
+el('clearBtn').addEventListener('click',()=>{records=[];localStorage.removeItem(STORAGE);render();el('adminMessage').textContent='Local records cleared.'});
+['search','municipality','variety'].forEach(id=>el(id).addEventListener(id==='search'?'input':'change',render));
+try{records=JSON.parse(localStorage.getItem(STORAGE)||'[]');if(!Array.isArray(records))records=[]}catch{records=[]}
+el('checkedAt').textContent='Page opened '+new Date().toLocaleString();
+render();
+</script>
+</body></html>
